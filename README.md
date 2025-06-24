@@ -6,6 +6,17 @@
 
 Aplicar un flujo ETL complejo sobre datos de pedidos, incluyendo validaciones avanzadas, normalización parcial, enriquecimiento de datos y estandarización con nomenclatura corporativa SEAT.
 
+## Requisitos
+
+* Haz un ***fork*** de este repositorio.
+* Clona este repositorio.
+
+## Entrega
+
+- Haz Commit y Push
+- Crea un Pull Request (PR)
+- Copia el enlace a tu PR (con tu solución) y pégalo en el campo de entrega del portal del estudiante – solo así se considerará entregado el lab
+
 ## 📁 Dataset
 
 **Archivo de origen**: `B_ORDERS_RAW_COMPLEX.csv` (1000 filas)  
@@ -127,10 +138,12 @@ Dentro de tu repositorio forkeado, asegúrate de incluir los siguientes archivos
 
 * `bronze.sql` – Script con la creación de la tabla Bronze (`B_ORDERS_RAW_COMPLEX`) y carga inicial del CSV
 * `silver.sql` – Script con:
+
   * La creación de la tabla de métodos de pago (`S_PAYMENT_METHODS`)
   * La transformación y limpieza (`S_ORDERS_CLEAN_COMPLEX`)
 * `gold.sql` – Script con la creación de la vista `G_ORDERS_BY_PAYMENT_METHOD`
 * `lab-notes.md` – Documento explicativo que incluya:
+
   * Cuántos registros fueron descartados
   * Qué errores o inconsistencias predominaban
   * Qué validaciones aplicaste (formato, tipos, nulos, valores inválidos)
