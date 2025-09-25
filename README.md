@@ -145,10 +145,60 @@ Dentro de tu repositorio forkeado, asegúrate de incluir los siguientes archivos
 * `gold.sql` – Script con la creación de la vista `G_ORDERS_BY_PAYMENT_METHOD`
 * `lab-notes.md` – Documento explicativo que incluya:
 
-  * Cuántos registros fueron descartados
-  * Qué errores o inconsistencias predominaban
+  * Cuántos registros fueron descartados 371
+  * Qué errores o inconsistencias predominaban: inconsistencias de datos, nulos, fechas como string
   * Qué validaciones aplicaste (formato, tipos, nulos, valores inválidos)
+ Validaciones que aplica tu CTAS (y qué protegen)
+
+Formato y tipos
+
+TRY_TO_DATE(DTE_ORDER, 'YYYY-MM-DD') y TRY_TO_DATE(DTE_DELIVERY_EST, 'YYYY-MM-DD'): valida formato ISO; si falla, devuelve NULL (y además filtras DTE_ORDER IS NOT NULL).
+
+TRY_TO_NUMBER(AMT_TOTAL): asegura numérico en importe total (filtras IS NOT NULL).
+
+TRY_TO_NUMBER(QTY_ORDERED) dentro de CASE: garantiza numérico y mayor que 0; si no, lo anulas.
+
+UPPER(REF_PAYMENT_METHOD): normaliza el dominio de métodos de pago (evita duplicidades por casing).
+
+Nulos
+
+WHERE ... TRY_TO_DATE(DTE_ORDER)... IS NOT NULL: obligas fecha de pedido válida.
+
+AND ID_CUSTOMER IS NOT NULL: evitas registros huérfanos de cliente.
+
+AND TRY_TO_NUMBER(AMT_TOTAL) IS NOT NULL: evitas importes no parseables.
+
+Valores inválidos / dominios
+
+AND ID_PART NOT IN ('INVALID'): bloqueo explícito de un valor conocido como inválido.
+
+QTY_ORDERED > 0: evita cantidades cero/negativas.
+
+Auditoría
+
+CURRENT_TIMESTAMP() y CURRENT_USER(): traqueo de carga
   * Propuesta de otras vistas analíticas en Gold
+
+CREATE OR REPLACE VIEW G_V_FACT_ORDERS_DAILY AS
+SELECT
+  DATE_TRUNC('day', DTE_ORDER) AS day,
+  COUNT(DISTINCT ID_ORDER)     AS orders,
+  SUM(QTY_ORDERED)             AS items,
+  SUM(AMT_TOTAL)               AS revenue,
+  AVG(AMT_TOTAL)               AS avg_ticket
+FROM S_ORDERS_CLEAN_COMPLEX
+GROUP BY 1;
+
+CREATE OR REPLACE VIEW G_V_PAYMENT_MIX AS
+SELECT
+  DATE_TRUNC('month', DTE_ORDER) AS month,
+  REF_PAYMENT_METHOD,
+  COUNT(DISTINCT ID_ORDER)        AS orders,
+  SUM(AMT_TOTAL)                  AS revenue,
+  100.0 * SUM(AMT_TOTAL) / NULLIF(SUM(SUM(AMT_TOTAL)) OVER (PARTITION BY DATE_TRUNC('month', DTE_ORDER)),0) AS revenue_share_pct,
+  AVG(AMT_TOTAL)                  AS avg_ticket
+FROM S_ORDERS_CLEAN_COMPLEX
+GROUP BY 1,2;
   * Respuestas a las preguntas del apartado **🧠 Preguntas de análisis**
 * *(Opcional)* Capturas de pantalla de las vistas o consultas ejecutadas en Snowflake
 
