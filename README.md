@@ -117,7 +117,7 @@ GROUP BY REF.REF_PAYMENT_METHOD, PAY.DES_PAYMENT_METHOD;
 ## 🧠 Preguntas de análisis
 
 1. ¿Cuántos registros fueron descartados por errores?
-   ! registro, el archivo tiene 1001, el dataset creado 1000
+   cargan todos
 3. ¿Qué proporción de métodos de pago están ausentes o mal escritos?
 4. ¿Cuál es el ticket medio por pedido?
 5. ¿Cuántos pedidos no tienen fecha de entrega informada?
